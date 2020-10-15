@@ -52,7 +52,7 @@ def get_folders_inside_path(root_folder):
     return sorted(folder_to_consider, key=len)
 
 
-def create_missing_folders(source_folder, target_folder):
+def create_missing_folders(source_folder, target_folder, folder_to_copy):
     """
     Creates missing folders in target directory before copying all the files...
     """
@@ -64,13 +64,13 @@ def create_missing_folders(source_folder, target_folder):
         f_name = final_folder.split(target_folder)[-1]
         if not os.path.exists(final_folder):
             try:
-                print(f"Creando carpeta: '{f_name}'...")
+                print(f"Creando carpeta en '{folder_to_copy}: '{f_name}'...")
                 os.mkdir(final_folder)
             except:
-                print(f"Error al crear carpeta '{f_name}'...")
+                print(f"Error al crear carpeta en '{folder_to_copy}': '{f_name}'")
                 pass
         else:
-            print(f"La carpeta '{f_name}' ya existe!!")
+            print(f"La carpeta '{f_name}' ya existe en '{folder_to_copy}'!!")
             pass
 
     print(separador + " FINALIZAMOS LA CREACIÓN DE CARPETAS " + separador, "\n")
@@ -123,19 +123,39 @@ def copy_files(source, target, folder_to_copy):
     
     print(separador + " FINALIZAMOS LA COPIA DE ARCHIVOS " + separador, "\n")
 
-# BACK UP
+# ----------------------------------------------------------------------------------------- #
+# ------------------------------------ MAIN CODE ------------------------------------------ #
+# ----------------------------------------------------------------------------------------- #
+
 #source_dir = os.path.join(os.getcwd(), "source")
 #target_dir = os.path.join(os.getcwd(), "target")
 
 source_dir = 'D:\\DatosUsuario\\jecar\\Escritorio\\MASTER_BIG_DATA'
 target_dir = "F:\\BACK UPS\\USADOS\\BACKUP_MASTER"
-folders_not_to_copy = ['API-MÁSTER-SCHEDULING', '.tmp.drivedownload', '.Rhistory', '.RData']
 
-create_missing_folders(source_dir, target_dir)
+# NOTE No pueden existir las dos a la vez (o, al menos, una debe ser una lista vacía)...
+#folders_not_to_copy = ['API-MÁSTER-SCHEDULING', '.tmp.drivedownload', '.Rhistory', '.RData']
+only_copy_these_folders = ['6-INFRAESTRUCTURA BIG DATA']
 
-for folder_to_copy in os.listdir(source_dir):
-    if folder_to_copy not in folders_not_to_copy:
-        s = os.path.join(source_dir, folder_to_copy)
-        t = os.path.join(target_dir, folder_to_copy)
-        copy_files(s, t, folder_to_copy)
+# NOTE Es mejor hacer esto solo una vez...
+#create_missing_folders(source_dir, target_dir)
 
+try: 
+    folders_not_to_copy
+    for folder_to_copy in os.listdir(source_dir):
+
+        if folder_to_copy not in folders_not_to_copy:
+            s = os.path.join(source_dir, folder_to_copy)
+            t = os.path.join(target_dir, folder_to_copy)
+            create_missing_folders(s, t, folder_to_copy)
+            copy_files(s, t, folder_to_copy)
+
+except: 
+    only_copy_these_folders
+    for folder_to_copy in os.listdir(source_dir):
+
+        if folder_to_copy in only_copy_these_folders:
+            s = os.path.join(source_dir, folder_to_copy)
+            t = os.path.join(target_dir, folder_to_copy)
+            create_missing_folders(s, t, folder_to_copy)
+            copy_files(s, t, folder_to_copy)
